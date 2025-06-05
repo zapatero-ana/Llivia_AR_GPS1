@@ -1,1 +1,0 @@
-# Llivia_AR_GPSldjuv8
