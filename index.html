@@ -1,44 +1,61 @@
 <!doctype html>
 <html>
-    <head>
-        <meta charset="utf-8" />
-        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-        <script src="https://aframe.io/releases/1.0.4/aframe.min.js"></script>
-        <script src="https://unpkg.com/aframe-look-at-component@0.8.0/dist/aframe-look-at-component.min.js"></script>
-        <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar-nft.js"></script>
-        <script src="https://raw.githack.com/donmccurdy/aframe-extras/master/dist/aframe-extras.loaders.min.js"></script>
-    </head>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>Forest AR Trail</title>
+    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+    <!-- Use GPS-enabled AR.js build -->
+    <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
+    <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar-gps.js"></script>
+    <style>
+        body { margin: 0; overflow: hidden; }
+        #loading { 
+            position: absolute; 
+            top: 50%; 
+            left: 50%; 
+            transform: translate(-50%, -50%);
+            color: white;
+            font-family: Arial;
+        }
+    </style>
+</head>
+<body>
+    <div id="loading">Initializing AR...</div>
+    
+    <a-scene
+        embedded
+        arjs="sourceType: webcam; debugUIEnabled: false;"
+        renderer="logarithmicDepthBuffer: true;"
+    >
+        <!-- Your local asset with relative path -->
+        <a-image
+            src="assets/asset.jpeg"
+            look-at="[gps-camera]"
+            scale="1 1 1"
+            gps-entity-place="latitude: 41.4349455; longitude: 2.171617;"
+        ></a-image>
 
-    <body style="margin: 0; overflow: hidden;">
-        <a-scene
-            renderer="logarithmicDepthBuffer: true;"
-            embedded
-            loading-screen="enabled: false;"
-            arjs="sourceType: webcam; debugUIEnabled: false;"
-        >
-            <a-assets>
-                <a-asset-item
-                    id="animated-asset"
-                    src="assets/asset.glb"
-                ></a-asset-item>
-            </a-assets>
+        <a-camera gps-camera rotation-reader></a-camera>
+    </a-scene>
 
-                <a-entity
-                    look-at="[gps-camera]"
-                    animation-mixer="loop: repeat"
-                    gltf-model="#animated-asset"
-                    scale="1.2182804929640978 1.2182804929640978 1.2182804929640978"
-                    gps-entity-place="latitude: 41.4350529; longitude: 2.1714899;"
-                ></a-entity>
-                <a-entity
-                    look-at="[gps-camera]"
-                    animation-mixer="loop: repeat"
-                    gltf-model="#animated-asset"
-                    scale="1.2182804929640978 1.2182804929640978 1.2182804929640978"
-                    gps-entity-place="latitude: 41.4350855; longitude: 2.1715523;"
-                ></a-entity>
+    <script>
+        // Error handling
+        const scene = document.querySelector('a-scene');
+        const loading = document.getElementById('loading');
+        
+        scene.addEventListener('loaded', () => {
+            loading.style.display = 'none';
+        });
 
-            <a-camera gps-camera rotation-reader></a-camera>
-        </a-scene>
-    </body>
+        scene.addEventListener('gps-camera-error', (e) => {
+            loading.textContent = `Error: ${e.detail.message}`;
+            console.error('GPS Error:', e.detail.message);
+        });
+
+        scene.addEventListener('gps-camera-update-position', (e) => {
+            console.log('Current position:', e.detail.position);
+        });
+    </script>
+</body>
 </html>
